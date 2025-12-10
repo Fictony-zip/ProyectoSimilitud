@@ -1,13 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
 import os
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
 
 TOP_URL = "https://www.gutenberg.org/browse/scores/top"
 
 
-# --------------------------------------------------
-# 1. Obtener los 100 IDs del top "EBooks yesterday"
-# --------------------------------------------------
+
+# 1. Obtener el top 100 IDs de libros
 def get_top100_ids():
     r = requests.get(TOP_URL)
     soup = BeautifulSoup(r.text, "html.parser")
@@ -29,9 +30,7 @@ def get_top100_ids():
     return ids
 
 
-# --------------------------------------------------
-# 2. Obtener el título del libro desde su página
-# --------------------------------------------------
+# 2. Obtener el título del libro
 def get_title(book_id):
     url = f"https://www.gutenberg.org/ebooks/{book_id}"
     r = requests.get(url)
@@ -46,16 +45,13 @@ def get_title(book_id):
 
     title = title_tag.text.split(" by ")[0].replace(" - Free Ebook", "").strip()
 
-    # Quitar caracteres ilegales para nombres de archivo
     for ch in ['<', '>', ':', '"', '/', '\\', '|', '?', '*']:
         title = title.replace(ch, '')
 
     return title
 
 
-# --------------------------------------------------
-# 3. Descargar el archivo con nombre basado en el título
-# --------------------------------------------------
+# 3. Descargar
 def download_book(book_id, outdir="books"):
     os.makedirs(outdir, exist_ok=True)
 
@@ -80,9 +76,7 @@ def download_book(book_id, outdir="books"):
     return False
 
 
-# --------------------------------------------------
 # 4. Main
-# --------------------------------------------------
 def main():
     print("Obteniendo los IDs del top 100...")
     ids = get_top100_ids()
